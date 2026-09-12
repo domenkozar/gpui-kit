@@ -135,7 +135,7 @@ impl RenderOnce for Popup {
                     .margin(WINDOW_MARGIN)
                     .child(content),
             )
-            .with_priority(POPUP_PRIORITY),
+            .priority(POPUP_PRIORITY),
         )
     }
 }

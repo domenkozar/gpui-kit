@@ -1361,7 +1361,7 @@ impl PopupMenu {
                                 )
                                 .snap_to_window_with_margin(Edges::all(EDGE_PADDING)),
                         )
-                        .with_priority(self.priority + 1)
+                        .priority(self.priority + 1)
                     })
                 }),
         }

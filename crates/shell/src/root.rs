@@ -670,7 +670,7 @@ impl ShellRoot {
                 .right(spacing.lg)
                 .w(TOAST_WIDTH),
         )
-        .with_priority(TOAST_PRIORITY)
+        .priority(TOAST_PRIORITY)
     }
 }
 
