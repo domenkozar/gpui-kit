@@ -701,7 +701,10 @@ impl Element for VirtualList {
 
                     let items = (self.render_items)(visible_range.clone(), window, cx);
 
-                    let content_mask = ContentMask { bounds };
+                    let content_mask = ContentMask {
+                        fade_out: Default::default(),
+                        bounds,
+                    };
                     window.with_content_mask(Some(content_mask), |window| {
                         for (mut item, ix) in items.into_iter().zip(visible_range.clone()) {
                             let item_origin = match self.axis {

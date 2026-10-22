@@ -8,7 +8,6 @@ use gpui::{
     StyleRefinement, Styled, Window, div, point, px,
 };
 
-use crate::StyledExt;
 use crate::text::TextViewFormat;
 use crate::text::markdown_ext::{MarkdownExtensions, MarkdownNode, MarkdownPlugin};
 use crate::text::node::{CodeBlock, TableData};
@@ -800,6 +799,7 @@ impl Element for TextView {
             // Snap the `max_lines` clip to the last whole line that fits, so a
             // line of glyphs is never cut in half.
             let mask = ContentMask {
+                fade_out: Default::default(),
                 bounds: Bounds::from_corners(bounds.origin, point(bounds.right(), clip_bottom)),
             };
             window.with_content_mask(Some(mask), |window| {

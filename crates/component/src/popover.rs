@@ -8,7 +8,7 @@ use std::{cell::Cell, rc::Rc, time::Duration};
 
 use crate::{ActiveTheme as _, ThemeStyled as _};
 use crate::{
-    Selectable, StyledExt as _,
+    Selectable,
     animation::ease_out_cubic,
     styled::{popover_ring, popover_shadow},
     v_flex,
@@ -381,10 +381,14 @@ impl RenderOnce for Popover {
                                     // The triangle ends exactly at the surface edge.
                                     // Cover the ring and the antialiased base on both
                                     // sides of that edge before drawing its two slopes.
-                                    window.paint_quad(gpui::fill(
-                                        arrow_join_bounds(points, side, px(1.)),
-                                        background,
-                                    ));
+                                    window.paint_quad(
+                                        gpui::PaintQuad::new(arrow_join_bounds(
+                                            points,
+                                            side,
+                                            px(1.),
+                                        ))
+                                        .background(background),
+                                    );
                                     if appearance {
                                         let mut outline = PathBuilder::stroke(px(1.));
                                         outline.move_to(points[0]);
