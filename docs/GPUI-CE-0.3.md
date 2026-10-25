@@ -53,6 +53,12 @@ Parley. Renderer probes request fresh renders when testing callbacks; geometry
 fixtures set their actual viewport size, and animation tests advance the scheduler
 clock instead of sleeping on wall time.
 
+Kit integration fixtures give cached views an explicit root size. Functional
+overlay checks disable motion, while animation geometry checks advance the
+scheduler clock. The non-WebView workspace passes 2,245 tests and doctests with
+three existing ignores. The no-default-features checks and workspace Clippy
+also pass on Linux.
+
 A full workspace check also needs the platform development dependencies for
 Story and WebView. Native Story, accessibility, macOS, and Windows checks remain
 part of platform validation; a headless library test is not a substitute for them.
