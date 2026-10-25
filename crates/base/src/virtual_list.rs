@@ -828,6 +828,8 @@ mod tests {
         assert!(initial_range.end < item_sizes.len());
 
         scroll_handle.scroll_to_item(12, ScrollStrategy::Top);
+        // Mutating an external scroll handle requires its owner to invalidate the view.
+        cx.update(|window, _| window.refresh());
         cx.update(|window, cx| window.draw(cx).clear(cx));
         let scrolled_range = visible_ranges.borrow().last().cloned().unwrap();
         assert!(scrolled_range.contains(&12));

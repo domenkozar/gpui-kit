@@ -24,12 +24,13 @@ function readGpuiKitVersion() {
   return readFileSync(manifest, 'utf8').match(/^version\s*=\s*"([^"]+)"/m)?.[1];
 }
 
+// Keep the legacy variable name for existing and versioned Markdown pages.
 function readGpuiPreVersion() {
   if (process.env.GPUI_PRE_VERSION) return process.env.GPUI_PRE_VERSION;
   const manifest = resolve(process.cwd(), '..', 'Cargo.toml');
   if (!existsSync(manifest)) return undefined;
   const pin = readFileSync(manifest, 'utf8')
-    .match(/^gpui\s*=\s*\{[^}\n]*package\s*=\s*"gpui-pre"[^}\n]*version\s*=\s*"=?([^"]+)"/m);
+    .match(/^gpui\s*=\s*\{[^}\n]*package\s*=\s*"(?:gpui-ce|gpui-pre)"[^}\n]*version\s*=\s*"=?([^"]+)"/m);
   return pin?.[1];
 }
 

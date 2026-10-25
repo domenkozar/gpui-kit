@@ -425,37 +425,13 @@ impl Inline {
             return;
         };
         let text_layout = self.styled_text.layout();
-        let bounds = text_layout.bounds();
         let line_height = text_layout.line_height();
-        let glyphs = glyph_boxes(
-            text_layout,
-            window.text_style().text_align,
-            bounds.size.width,
-        );
-        // The glyph drawing the text at the offset, or, for text with no
-        // glyph of its own such as a line break, the next glyph, or the last.
-        let offset = reveal.offset();
-        let (row, left, right) = range_boxes(&glyphs, offset..offset + 1)
-            .first()
-            .copied()
-            .or_else(|| {
-                glyphs
-                    .iter()
-                    .find(|glyph| glyph.text.start >= offset)
-                    .or(glyphs.last())
-                    .map(|glyph| (glyph.row, glyph.left, glyph.right))
-            })
-            .unwrap_or((0, Pixels::ZERO, Pixels::ZERO));
-        let line = Bounds::from_corners(
-            point(
-                bounds.left() + left,
-                bounds.top() + line_height * row as f32,
-            ),
-            point(
-                bounds.left() + right.max(left + px(1.)),
-                bounds.top() + line_height * (row + 1) as f32,
-            ),
-        );
+        // The backend already owns wrap, newline, and caret affinity geometry.
+        // Looking up one caret also avoids walking every cluster in a long paragraph.
+        let Some(position) = text_layout.position_for_index(reveal.offset()) else {
+            return;
+        };
+        let line = Bounds::new(position, size(px(1.), line_height));
         window.request_autoscroll(line);
         // A list scrolls the line to its edge, which layout may miss by a
         // fraction of a pixel.
@@ -886,6 +862,7 @@ impl Element for Inline {
         let layout_id = window.request_layout(
             gpui::Style {
                 display: gpui::Display::Flex,
+                flex_direction: gpui::FlexDirection::Column,
                 ..Default::default()
             },
             [layout_id],
@@ -1510,11 +1487,8 @@ mod line_bounds_tests {
 
 #[cfg(test)]
 mod range_highlight_tests {
+    use super::test_draw::in_prepaint;
     use super::*;
-    use super::{
-        test_draw::in_prepaint,
-        test_fonts::{BODY, WideMonoTextSystem},
-    };
     use gpui::{AvailableSpace, TestApp, size};
 
     /// Lays `text` out at `wrap_width` and returns the highlight boxes of
@@ -1526,11 +1500,11 @@ mod range_highlight_tests {
         align: TextAlign,
         range: Range<usize>,
     ) -> Vec<(Pixels, Pixels, usize)> {
-        let mut app = TestApp::with_text_system(Arc::new(WideMonoTextSystem));
+        let mut app = TestApp::with_text_system(crate::test_text_system::platform());
         in_prepaint(&mut app, move |window, cx| {
             let style = TextStyle {
-                font_family: BODY.into(),
-                font_size: px(16.).into(),
+                font_family: "JetBrains Mono".into(),
+                font_size: px(40. / 3.).into(),
                 ..Default::default()
             };
             let styled = StyledText::new(SharedString::from(text)).with_runs(text_runs(
@@ -1540,13 +1514,21 @@ mod range_highlight_tests {
             ));
             let layout = styled.layout().clone();
             let mut element = styled.into_any_element();
-            element.layout_as_root(
-                size(
-                    AvailableSpace::Definite(px(wrap_width)),
-                    AvailableSpace::MinContent,
-                ),
-                window,
-                cx,
+            window.with_text_style(
+                Some(gpui::TextStyleRefinement {
+                    text_align: Some(align),
+                    ..Default::default()
+                }),
+                |window| {
+                    element.layout_as_root(
+                        size(
+                            AvailableSpace::Definite(px(wrap_width)),
+                            AvailableSpace::MinContent,
+                        ),
+                        window,
+                        cx,
+                    );
+                },
             );
             let origin = point(px(7.), px(11.));
             element.prepaint_at(origin, window, cx);
@@ -1565,11 +1547,11 @@ mod range_highlight_tests {
     /// places at the end of the row before it, holds no row the walk tests.
     #[test]
     fn text_rows_extent_matches_the_character_walk() {
-        let mut app = TestApp::with_text_system(Arc::new(WideMonoTextSystem));
+        let mut app = TestApp::with_text_system(crate::test_text_system::platform());
         in_prepaint(&mut app, |window, cx| {
             let style = TextStyle {
-                font_family: BODY.into(),
-                font_size: px(16.).into(),
+                font_family: "JetBrains Mono".into(),
+                font_size: px(40. / 3.).into(),
                 ..Default::default()
             };
             let origin = point(px(7.), px(11.3));

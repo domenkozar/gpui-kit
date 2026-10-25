@@ -1,8 +1,8 @@
 # GPUI CE 0.3 compatibility
 
 The workspace uses the stable `gpui-ce`, `gpui_ce_platform`, `gpui_ce_macros`,
-and `gpui_ce_web` 0.3 releases together. Consumers must use the same GPUI version
-as the component crates to avoid incompatible element and context types.
+and `gpui_ce_web` 0.3 releases together, pinned exactly to `=0.3.0`. Consumers
+must use the same GPUI version as the component crates to avoid incompatible element and context types.
 
 GPUI now provides `Styled::refine_style`. Import `gpui::Styled` for that method;
 the duplicate `gpui_base::StyledExt` method has been removed. Other `StyledExt`
@@ -24,6 +24,18 @@ The port also adapts content masks, paint builders, shadow backgrounds,
 activation, inspector registration, and the deterministic text test fixtures.
 The component widget and theme APIs otherwise remain unchanged.
 
+Inline SVG bytes now use GPUI's `Svg::data` API. Native menus resolve assets
+through `AssetRegistry`. Command presentation changes invalidate the retained
+view, and first-frame keybinding lookup uses an explicit context. Dialog bodies
+use a flex column so a capped panel gives its scroll viewport the remaining
+height. Selectable text uses a column wrapper so the shaper receives the available
+width; reveal requests query the target caret rather than walking every cluster.
+
+CI targets the CE package names and validates the shared stable release pin.
+The removed JavaScript Shell packages are no longer scheduled. Website version
+resolution accepts CE manifests while retaining the legacy variable name for
+historical documentation builds.
+
 ## Validation
 
 Run `cargo fmt --all --check`, then the Base and Component library tests:
@@ -35,6 +47,11 @@ cargo test -p gpui_ce_components_base -p gpui_ce_components --lib
 The `text_compat` tests shape through Parley with the repository's bundled IBM
 Plex font. They cover Unicode byte boundaries, atomic elements, and caret round
 trips without depending on installed system fonts.
+
+Wrapping, highlight, and reveal tests use a bundled JetBrains Mono font through
+Parley. Renderer probes request fresh renders when testing callbacks; geometry
+fixtures set their actual viewport size, and animation tests advance the scheduler
+clock instead of sleeping on wall time.
 
 A full workspace check also needs the platform development dependencies for
 Story and WebView. Native Story, accessibility, macOS, and Windows checks remain

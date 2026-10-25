@@ -247,3 +247,6 @@ pub fn init(cx: &mut App) {
 
 #[cfg(feature = "test-support")]
 pub mod test_support;
+
+#[cfg(test)]
+mod test_text_system;

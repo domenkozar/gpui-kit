@@ -1326,6 +1326,7 @@ mod tests {
     /// keeps describing it.
     #[gpui::test]
     fn replacing_a_document_with_an_equal_block_count_remeasures(cx: &mut TestAppContext) {
+        crate::test_text_system::install(cx);
         cx.update(crate::init);
 
         const BLOCKS: usize = 24;
@@ -1336,6 +1337,7 @@ mod tests {
             text_view: cx.new(|cx| TextViewState::markdown(&short, cx)),
         });
         let cx: &mut VisualTestContext = cx;
+        cx.simulate_resize(gpui::size(px(400.), px(200.)));
 
         // The list is populated and measured during layout, so every
         // assertion below has to follow a real frame.

@@ -713,7 +713,7 @@ impl RenderOnce for Dialog {
                                                 })
                                                 .when(!self.children.is_empty(), |this| {
                                                     this.child(
-                                                        div().flex_1().overflow_hidden().child(
+                                                        v_flex().flex_1().overflow_hidden().child(
                                                             // Body
                                                             v_flex()
                                                                 .size_full()
