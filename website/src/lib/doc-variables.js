@@ -21,7 +21,15 @@ function readGpuiKitVersion() {
   if (tag) return tag[1];
   const manifest = resolve(process.cwd(), '..', 'crates', 'kit', 'Cargo.toml');
   if (!existsSync(manifest)) return undefined;
-  return readFileSync(manifest, 'utf8').match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+  const kitManifest = readFileSync(manifest, 'utf8');
+  const version = kitManifest.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+  if (version) return version;
+  if (!/^version\.workspace\s*=\s*true/m.test(kitManifest)) return undefined;
+  const workspaceManifest = resolve(process.cwd(), '..', 'Cargo.toml');
+  if (!existsSync(workspaceManifest)) return undefined;
+  const workspacePackage = readFileSync(workspaceManifest, 'utf8')
+    .split('[workspace.package]')[1]?.split(/^\[/m)[0];
+  return workspacePackage?.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
 }
 
 // Keep the legacy variable name for existing and versioned Markdown pages.
